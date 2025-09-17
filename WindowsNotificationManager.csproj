@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <StartupObject>WindowsNotificationManager.App</StartupObject>
+    <UseWindowsDesktopSdk>true</UseWindowsDesktopSdk>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Folder Include="src\Core\" />
+    <Folder Include="src\Services\" />
+    <Folder Include="src\UI\" />
+    <Folder Include="src\Utils\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="tray.ico" />
+  </ItemGroup>
+
+</Project>
