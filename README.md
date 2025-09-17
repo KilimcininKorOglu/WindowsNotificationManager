@@ -1,4 +1,4 @@
-# KorOglan'ın Windows Bildirim Yöneticisi v1.3.0
+# KorOglan'ın Windows Bildirim Yöneticisi v1.4.0
 
 Windows bildirimlerini çoklu monitör kurulumlarında doğru monitörde göstermek için geliştirilmiş bir masaüstü uygulaması.
 
@@ -14,6 +14,7 @@ Windows bildirimlerini çoklu monitör kurulumlarında doğru monitörde göster
 - **Performans Optimizasyonu**: %90+ olay filtreleme ve cache sistemi ile düşük CPU kullanımı
 - **Minimize Pencere Takibi**: Taskbar'a küçültülen uygulamaların doğru monitör takibi
 - **Ultra-Wide Monitör Desteği**: 49" Samsung gibi ultra-wide monitörlerden normal monitörlere doğru bildirim taşıma
+- **Windows Native Pozisyonlama**: Tüm monitör çözünürlüklerinde tutarlı sağ alt köşe pozisyonlama
 
 ## Sistem Gereksinimleri
 
