@@ -396,4 +396,5 @@ FodyWeavers.xsd
 # Project specific ignores
 *.log
 notification_debug.log
-create_icons.py
+create_icons.py.claude/
+CLAUDE.md
