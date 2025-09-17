@@ -1,4 +1,4 @@
-# KorOglan's Windows Notification Manager v1.2.0
+# KorOglan's Windows Notification Manager v1.3.0
 
 A desktop application developed to display Windows notifications on the correct monitor in multi-monitor setups.
 
@@ -13,6 +13,7 @@ A desktop application developed to display Windows notifications on the correct 
 - **Debug Logging**: Optional detailed debug log system
 - **Performance Optimization**: Low CPU usage with 90%+ event filtering and caching system
 - **Minimized Window Tracking**: Accurate monitor tracking for applications minimized to taskbar
+- **Ultra-Wide Monitor Support**: Proper notification positioning from ultra-wide monitors (49" Samsung) to normal monitors
 
 ## System Requirements
 

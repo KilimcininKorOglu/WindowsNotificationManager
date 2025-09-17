@@ -392,6 +392,22 @@ namespace WindowsNotificationManager.src.Core
                             newX = targetMonitor.Bounds.Left + relativeX;
                             newY = targetMonitor.Bounds.Top + relativeY;
 
+                            // Ensure notification stays within target monitor bounds (fix for ultra-wide monitors)
+                            var targetWidth = targetMonitor.Bounds.Right - targetMonitor.Bounds.Left;
+                            var targetHeight = targetMonitor.Bounds.Bottom - targetMonitor.Bounds.Top;
+
+                            if (newX + width > targetMonitor.Bounds.Right)
+                            {
+                                newX = targetMonitor.Bounds.Right - width;
+                                DebugLogger.WriteLine($"Adjusted X position to fit within target monitor: {newX}");
+                            }
+
+                            if (newY + height > targetMonitor.Bounds.Bottom)
+                            {
+                                newY = targetMonitor.Bounds.Bottom - height;
+                                DebugLogger.WriteLine($"Adjusted Y position to fit within target monitor: {newY}");
+                            }
+
                             DebugLogger.WriteLine($"Preserving Windows default position: relative=({relativeX},{relativeY})");
                             DebugLogger.WriteLine($"Current notification monitor: {currentMonitor.Index}, Target app monitor: {targetMonitor.Index}");
 
