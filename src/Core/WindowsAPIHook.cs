@@ -384,31 +384,15 @@ namespace WindowsNotificationManager.src.Core
 
                         if (currentMonitor != null)
                         {
-                            // Calculate relative position within current monitor
-                            var relativeX = currentX - currentMonitor.Bounds.Left;
-                            var relativeY = currentY - currentMonitor.Bounds.Top;
+                            // Use Windows native notification positioning (universal solution)
+                            // This ensures consistent positioning across all monitor resolutions
+                            const int WINDOWS_NOTIFICATION_MARGIN = 16; // Windows default margin
 
-                            // Apply same relative position to target monitor (preserve Windows default positioning)
-                            newX = targetMonitor.Bounds.Left + relativeX;
-                            newY = targetMonitor.Bounds.Top + relativeY;
+                            // Position notification in bottom-right corner using WorkArea (excludes taskbar)
+                            newX = targetMonitor.WorkArea.Right - width - WINDOWS_NOTIFICATION_MARGIN;
+                            newY = targetMonitor.WorkArea.Bottom - height - WINDOWS_NOTIFICATION_MARGIN;
 
-                            // Ensure notification stays within target monitor bounds (fix for ultra-wide monitors)
-                            var targetWidth = targetMonitor.Bounds.Right - targetMonitor.Bounds.Left;
-                            var targetHeight = targetMonitor.Bounds.Bottom - targetMonitor.Bounds.Top;
-
-                            if (newX + width > targetMonitor.Bounds.Right)
-                            {
-                                newX = targetMonitor.Bounds.Right - width;
-                                DebugLogger.WriteLine($"Adjusted X position to fit within target monitor: {newX}");
-                            }
-
-                            if (newY + height > targetMonitor.Bounds.Bottom)
-                            {
-                                newY = targetMonitor.Bounds.Bottom - height;
-                                DebugLogger.WriteLine($"Adjusted Y position to fit within target monitor: {newY}");
-                            }
-
-                            DebugLogger.WriteLine($"Preserving Windows default position: relative=({relativeX},{relativeY})");
+                            DebugLogger.WriteLine($"Using Windows native positioning: margin={WINDOWS_NOTIFICATION_MARGIN}px");
                             DebugLogger.WriteLine($"Current notification monitor: {currentMonitor.Index}, Target app monitor: {targetMonitor.Index}");
 
                             if (currentMonitor.Index == targetMonitor.Index)
