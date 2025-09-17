@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,10 +27,16 @@ namespace WindowsNotificationManager.src.Core
         private readonly Timer _trackingTimer;
         private readonly object _lockObject = new object();
 
+        // Store last known positions for minimized windows
+        private readonly Dictionary<IntPtr, Win32Helper.RECT> _lastKnownPositions = new();
+
         public event EventHandler<WindowMovedEventArgs> WindowMoved;
         public event EventHandler<WindowFocusChangedEventArgs> WindowFocusChanged;
 
         private IntPtr _lastForegroundWindow = IntPtr.Zero;
+
+        [DllImport("user32.dll")]
+        private static extern bool IsIconic(IntPtr hWnd);
 
         public WindowTracker(MonitorManager monitorManager)
         {
@@ -82,7 +89,23 @@ namespace WindowsNotificationManager.src.Core
 
             if (Win32Helper.GetWindowRect(windowHandle, out var rect))
             {
-                return _monitorManager.GetMonitorContainingWindow(rect);
+                // Check if window is minimized (Windows puts minimized windows at -32000, -32000)
+                if (IsIconic(windowHandle) || rect.Left < -30000 || rect.Top < -30000)
+                {
+                    // Use last known position for minimized windows
+                    if (_lastKnownPositions.TryGetValue(windowHandle, out var lastRect))
+                    {
+                        return _monitorManager.GetMonitorContainingWindow(lastRect);
+                    }
+                    // If no last known position, return primary monitor
+                    return _monitorManager.GetPrimaryMonitor();
+                }
+                else
+                {
+                    // Store current position for future reference
+                    _lastKnownPositions[windowHandle] = rect;
+                    return _monitorManager.GetMonitorContainingWindow(rect);
+                }
             }
 
             return _monitorManager.GetPrimaryMonitor();
