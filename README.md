@@ -1,4 +1,4 @@
-# KorOglan'ın Windows Bildirim Yöneticisi v1.4.0
+# KorOglan'ın Windows Bildirim Yöneticisi v1.5.0
 
 Windows bildirimlerini çoklu monitör kurulumlarında doğru monitörde göstermek için geliştirilmiş bir masaüstü uygulaması.
 
