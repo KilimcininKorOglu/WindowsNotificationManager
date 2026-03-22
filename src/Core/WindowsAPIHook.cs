@@ -127,12 +127,6 @@ namespace WindowsNotificationManager.src.Core
         private static extern IntPtr GetForegroundWindow();
 
         /// <summary>
-        /// Retrieves the window rectangle (position and size) in screen coordinates
-        /// </summary>
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-        /// <summary>
         /// Gets handle to the current process
         /// </summary>
         [DllImport("kernel32.dll")]
@@ -194,18 +188,6 @@ namespace WindowsNotificationManager.src.Core
         /// Stored reference to the event hook delegate to prevent garbage collection
         /// </summary>
         private WinEventDelegate _winEventDelegate;
-
-        /// <summary>
-        /// Windows RECT structure for representing window rectangles
-        /// </summary>
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left;   // Left edge coordinate
-            public int Top;    // Top edge coordinate
-            public int Right;  // Right edge coordinate
-            public int Bottom; // Bottom edge coordinate
-        }
 
         /// <summary>
         /// Initializes a new WindowsAPIHook with required dependencies.
@@ -310,7 +292,7 @@ namespace WindowsNotificationManager.src.Core
                     DebugLogger.WriteLine($"DETECTED NOTIFICATION WINDOW: {hwnd:X8} - Event: {eventType}");
 
                     // Get the current window rectangle to determine size and position
-                    if (GetWindowRect(hwnd, out RECT rect))
+                    if (Win32Helper.GetWindowRect(hwnd, out Win32Helper.RECT rect))
                     {
                         var width = rect.Right - rect.Left;
                         var height = rect.Bottom - rect.Top;
@@ -582,7 +564,7 @@ namespace WindowsNotificationManager.src.Core
                     GetWindowText(foregroundWindow, foregroundTitle, foregroundTitle.Capacity);
 
                     // Log foreground window details for debugging notification routing decisions
-                    if (GetWindowRect(foregroundWindow, out RECT fgRect))
+                    if (Win32Helper.GetWindowRect(foregroundWindow, out Win32Helper.RECT fgRect))
                     {
                         DebugLogger.WriteLine($"Foreground window: {foregroundWindow:X8} - Process: {foregroundProcessName}, Title: '{foregroundTitle}', Position: ({fgRect.Left},{fgRect.Top},{fgRect.Right},{fgRect.Bottom})");
                     }
