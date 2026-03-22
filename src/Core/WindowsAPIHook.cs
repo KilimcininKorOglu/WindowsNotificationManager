@@ -387,7 +387,6 @@ namespace WindowsNotificationManager.src.Core
             {
                 // Process might have ended while we were looking it up
                 // Cache "Unknown" briefly to avoid repeated failed lookups
-                _cacheMisses++;
                 var unknownName = "Unknown";
                 _processCache[processId] = unknownName;
                 _processCacheTime[processId] = now;
