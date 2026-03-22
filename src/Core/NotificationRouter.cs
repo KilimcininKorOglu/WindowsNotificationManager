@@ -64,6 +64,11 @@ namespace WindowsNotificationManager.src.Core
         private readonly Dictionary<string, MonitorInfo> _appMonitorMappings;
 
         /// <summary>
+        /// Lock object for thread-safe access to _appMonitorMappings
+        /// </summary>
+        private readonly object _mappingsLock = new();
+
+        /// <summary>
         /// Event fired when a notification has been successfully routed to a target monitor
         /// </summary>
         public event EventHandler<NotificationRoutedEventArgs> NotificationRouted;
@@ -132,7 +137,10 @@ namespace WindowsNotificationManager.src.Core
                 {
                     DebugLogger.WriteLine($"Found current monitor for process {notification.ProcessName}: Monitor {currentMonitor.Index}");
                     // Cache this mapping for future notifications from this app
-                    _appMonitorMappings[notification.ProcessName] = currentMonitor;
+                    lock (_mappingsLock)
+                    {
+                        _appMonitorMappings[notification.ProcessName] = currentMonitor;
+                    }
                     return currentMonitor;
                 }
                 else
@@ -142,11 +150,18 @@ namespace WindowsNotificationManager.src.Core
             }
 
             // Priority 2: Use previously cached monitor mapping for this application
-            if (!string.IsNullOrEmpty(notification.ProcessName) &&
-                _appMonitorMappings.TryGetValue(notification.ProcessName, out var mappedMonitor))
+            if (!string.IsNullOrEmpty(notification.ProcessName))
             {
-                DebugLogger.WriteLine($"Using mapped monitor for process {notification.ProcessName}: Monitor {mappedMonitor.Index}");
-                return mappedMonitor;
+                MonitorInfo mappedMonitor;
+                lock (_mappingsLock)
+                {
+                    _appMonitorMappings.TryGetValue(notification.ProcessName, out mappedMonitor);
+                }
+                if (mappedMonitor != null)
+                {
+                    DebugLogger.WriteLine($"Using mapped monitor for process {notification.ProcessName}: Monitor {mappedMonitor.Index}");
+                    return mappedMonitor;
+                }
             }
 
             // Priority 3: Use the monitor where the currently active window is located
@@ -177,7 +192,10 @@ namespace WindowsNotificationManager.src.Core
         {
             if (!string.IsNullOrEmpty(processName) && monitor != null)
             {
-                _appMonitorMappings[processName] = monitor;
+                lock (_mappingsLock)
+                {
+                    _appMonitorMappings[processName] = monitor;
+                }
             }
         }
 
@@ -188,7 +206,10 @@ namespace WindowsNotificationManager.src.Core
         /// <returns>MonitorInfo if mapping exists, null otherwise</returns>
         public MonitorInfo GetAppMonitorMapping(string processName)
         {
-            return _appMonitorMappings.TryGetValue(processName, out var monitor) ? monitor : null;
+            lock (_mappingsLock)
+            {
+                return _appMonitorMappings.TryGetValue(processName, out var monitor) ? monitor : null;
+            }
         }
 
         /// <summary>
@@ -200,7 +221,10 @@ namespace WindowsNotificationManager.src.Core
         {
             if (!string.IsNullOrEmpty(processName))
             {
-                _appMonitorMappings.Remove(processName);
+                lock (_mappingsLock)
+                {
+                    _appMonitorMappings.Remove(processName);
+                }
             }
         }
 
@@ -210,7 +234,10 @@ namespace WindowsNotificationManager.src.Core
         /// </summary>
         public void ClearAllMappings()
         {
-            _appMonitorMappings.Clear();
+            lock (_mappingsLock)
+            {
+                _appMonitorMappings.Clear();
+            }
         }
 
         /// <summary>
@@ -220,7 +247,10 @@ namespace WindowsNotificationManager.src.Core
         /// <returns>Dictionary copy of all current mappings</returns>
         public Dictionary<string, MonitorInfo> GetAllMappings()
         {
-            return new Dictionary<string, MonitorInfo>(_appMonitorMappings);
+            lock (_mappingsLock)
+            {
+                return new Dictionary<string, MonitorInfo>(_appMonitorMappings);
+            }
         }
 
         /// <summary>
