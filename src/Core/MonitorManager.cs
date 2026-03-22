@@ -191,16 +191,16 @@ namespace WindowsNotificationManager.src.Core
 
         /// <summary>
         /// Generates a user-friendly display name for a monitor including its resolution.
-        /// Uses Turkish text for UI display purposes.
+        /// Uses LocalizationHelper for proper multi-language support.
         /// </summary>
         /// <param name="monitor">MonitorInfo object to generate display name for</param>
-        /// <returns>Formatted string with monitor name and resolution (e.g., "Ana Monitör (1920x1080)")</returns>
+        /// <returns>Formatted string with localized monitor name and resolution</returns>
         public string GetMonitorDisplayName(MonitorInfo monitor)
         {
             if (monitor.IsPrimary)
-                return $"Ana Monitör ({monitor.Bounds.Width}x{monitor.Bounds.Height})";
+                return $"{LocalizationHelper.GetString("PrimaryMonitor")} ({monitor.Bounds.Width}x{monitor.Bounds.Height})";
             else
-                return $"Monitör {monitor.Index + 1} ({monitor.Bounds.Width}x{monitor.Bounds.Height})";
+                return $"{LocalizationHelper.GetString("Monitor")} {monitor.Index + 1} ({monitor.Bounds.Width}x{monitor.Bounds.Height})";
         }
     }
 
