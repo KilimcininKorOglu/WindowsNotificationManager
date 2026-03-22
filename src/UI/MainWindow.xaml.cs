@@ -483,13 +483,12 @@ namespace WindowsNotificationManager.src.UI
 
     /// <summary>
     /// WPF value converter for displaying boolean values as localized "Yes/No" text.
-    /// Used in data binding to show user-friendly text instead of true/false values.
-    /// Currently uses Turkish text - should be updated to use LocalizationHelper for full localization.
+    /// Uses LocalizationHelper for automatic Turkish/English language support.
     /// </summary>
     public class BooleanToYesNoConverter : IValueConverter
     {
         /// <summary>
-        /// Converts boolean values to Turkish "Yes/No" text for display.
+        /// Converts boolean values to localized "Yes/No" text for display.
         /// </summary>
         /// <param name="value">Boolean value to convert</param>
         /// <param name="targetType">Target type (typically string)</param>
