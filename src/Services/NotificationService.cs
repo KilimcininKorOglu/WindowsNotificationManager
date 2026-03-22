@@ -14,6 +14,23 @@ namespace WindowsNotificationManager.src.Services
     public class NotificationService
     {
         /// <summary>
+        /// Static mapping of application display names to process names for routing logic
+        /// </summary>
+        private static readonly Dictionary<string, string> ProcessNameMapping = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "WhatsApp", "WhatsApp" },
+            { "Discord", "Discord" },
+            { "Telegram", "Telegram" },
+            { "Microsoft Teams", "Teams" },
+            { "Slack", "slack" },
+            { "Chrome", "chrome" },
+            { "Firefox", "firefox" },
+            { "Spotify", "Spotify" },
+            { "Visual Studio Code", "Code" },
+            { "Microsoft Outlook", "OUTLOOK" }
+        };
+
+        /// <summary>
         /// Manages multiple monitor detection and configuration changes
         /// </summary>
         private readonly MonitorManager _monitorManager;
@@ -193,24 +210,8 @@ namespace WindowsNotificationManager.src.Services
             if (string.IsNullOrEmpty(appName))
                 return "unknown";
 
-            // Translation table for common applications (case-insensitive lookup)
-            // Maps user-friendly app names to actual process names for routing
-            var processMapping = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "WhatsApp", "WhatsApp" },
-                { "Discord", "Discord" },
-                { "Telegram", "Telegram" },
-                { "Microsoft Teams", "Teams" },
-                { "Slack", "slack" },
-                { "Chrome", "chrome" },
-                { "Firefox", "firefox" },
-                { "Spotify", "Spotify" },
-                { "Visual Studio Code", "Code" },
-                { "Microsoft Outlook", "OUTLOOK" }
-            };
-
             // Return mapped process name if found, otherwise normalize the app name
-            return processMapping.TryGetValue(appName, out var processName)
+            return ProcessNameMapping.TryGetValue(appName, out var processName)
                 ? processName
                 : appName.Replace(" ", "").ToLower(); // Remove spaces and lowercase for consistency
         }
