@@ -26,11 +26,6 @@ namespace WindowsNotificationManager.src.UI
         private ContextMenuStrip _contextMenu;
 
         /// <summary>
-        /// Reference to the notification service for system interaction (currently unused but available for future features)
-        /// </summary>
-        private NotificationService _notificationService;
-
-        /// <summary>
         /// Initializes the system tray icon and context menu.
         /// Must be called after creating the TrayIcon instance to set up the tray functionality.
         /// </summary>
@@ -130,16 +125,6 @@ namespace WindowsNotificationManager.src.UI
 
             // Associate the context menu with the tray icon
             _notifyIcon.ContextMenuStrip = _contextMenu;
-        }
-
-        /// <summary>
-        /// Sets the notification service reference for potential future features.
-        /// Currently not used but provides access to system functionality for context menu enhancements.
-        /// </summary>
-        /// <param name="notificationService">NotificationService instance for system interaction</param>
-        public void SetNotificationService(NotificationService notificationService)
-        {
-            _notificationService = notificationService;
         }
 
         /// <summary>
