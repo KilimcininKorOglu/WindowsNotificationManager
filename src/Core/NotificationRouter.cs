@@ -80,6 +80,9 @@ namespace WindowsNotificationManager.src.Core
             _monitorManager = monitorManager ?? throw new ArgumentNullException(nameof(monitorManager));
             _windowTracker = windowTracker ?? throw new ArgumentNullException(nameof(windowTracker));
             _appMonitorMappings = new Dictionary<string, MonitorInfo>();
+
+            // Clear stale mappings when monitor configuration changes
+            _monitorManager.MonitorConfigurationChanged += (sender, e) => ClearAllMappings();
         }
 
         /// <summary>
