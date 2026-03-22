@@ -13,9 +13,10 @@ namespace WindowsNotificationManager
     public partial class App : Application
     {
         /// <summary>
-        /// Core notification routing service managing multi-monitor notification interception and positioning
+        /// Core notification routing service managing multi-monitor notification interception and positioning.
+        /// Exposed as public property so MainWindow can access the same instance.
         /// </summary>
-        private NotificationService _notificationService;
+        public NotificationService NotificationService { get; private set; }
 
         /// <summary>
         /// System tray icon providing user access when main window is hidden or minimized
@@ -48,8 +49,8 @@ namespace WindowsNotificationManager
 
             // STEP 4: Start core notification service (requires administrator privileges)
             // This activates Windows API hooks for real-time notification interception
-            _notificationService = new NotificationService();
-            _notificationService.Start();
+            NotificationService = new NotificationService();
+            NotificationService.Start();
         }
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace WindowsNotificationManager
         {
             // STEP 1: Dispose notification service (stops hooks, unsubscribes events, releases resources)
             // Dispose() calls Stop() internally plus additional cleanup
-            _notificationService?.Dispose();
+            NotificationService?.Dispose();
 
             // STEP 2: Dispose system tray icon and release Windows Forms resources
             // Prevents tray icon from remaining visible after application termination

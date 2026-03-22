@@ -150,16 +150,13 @@ namespace WindowsNotificationManager.src.UI
         }
 
         /// <summary>
-        /// Creates or retrieves the NotificationService instance for UI communication.
-        /// TODO: This should be replaced with proper dependency injection in production.
-        /// Currently creates a new instance each time for simplicity.
+        /// Retrieves the NotificationService instance from the App class.
+        /// Uses the shared instance created during application startup.
         /// </summary>
-        /// <returns>NotificationService instance for system interaction</returns>
+        /// <returns>NotificationService instance from the application</returns>
         private NotificationService GetNotificationServiceFromApp()
         {
-            // IMPROVEMENT: Replace with proper dependency injection container
-            // This approach creates a new service instance which may not match the global service
-            return new NotificationService();
+            return ((App)System.Windows.Application.Current).NotificationService;
         }
 
         /// <summary>
