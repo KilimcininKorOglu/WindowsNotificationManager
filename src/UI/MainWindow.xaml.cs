@@ -485,21 +485,19 @@ namespace WindowsNotificationManager.src.UI
     {
         /// <summary>
         /// Converts boolean values to Turkish "Yes/No" text for display.
-        /// TODO: Update to use LocalizationHelper for proper multi-language support.
         /// </summary>
         /// <param name="value">Boolean value to convert</param>
         /// <param name="targetType">Target type (typically string)</param>
         /// <param name="parameter">Converter parameter (not used)</param>
         /// <param name="culture">Culture information (not used)</param>
-        /// <returns>"Evet" for true, "Hayır" for false or invalid values</returns>
+        /// <returns>Localized "Yes" for true, localized "No" for false or invalid values</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool boolValue)
             {
-                // TODO: Replace with LocalizationHelper.GetString("Yes"/"No") for proper localization
-                return boolValue ? "Evet" : "Hayır";
+                return boolValue ? LocalizationHelper.GetString("Yes") : LocalizationHelper.GetString("No");
             }
-            return "Hayır";
+            return LocalizationHelper.GetString("No");
         }
 
         /// <summary>

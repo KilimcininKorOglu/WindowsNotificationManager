@@ -62,6 +62,8 @@ namespace WindowsNotificationManager.src.Utils
                 ["Loading"] = "Yükleniyor...",
                 ["Calculating"] = "Hesaplanıyor...",
                 ["Index"] = "Index",
+                ["Yes"] = "Evet",
+                ["No"] = "Hayır",
             },
             // English language translations serving as both fallback and primary language for international users
             ["en-US"] = new Dictionary<string, string>
@@ -106,6 +108,8 @@ namespace WindowsNotificationManager.src.Utils
                 ["Loading"] = "Loading...",
                 ["Calculating"] = "Calculating...",
                 ["Index"] = "Index",
+                ["Yes"] = "Yes",
+                ["No"] = "No",
             }
         };
 
