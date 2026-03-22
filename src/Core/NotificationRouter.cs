@@ -213,43 +213,14 @@ namespace WindowsNotificationManager.src.Core
         }
 
         /// <summary>
-        /// Removes the cached monitor mapping for a specific application process.
-        /// Forces the router to re-determine the best monitor for future notifications.
-        /// </summary>
-        /// <param name="processName">Name of the process to clear mapping for</param>
-        public void ClearAppMonitorMapping(string processName)
-        {
-            if (!string.IsNullOrEmpty(processName))
-            {
-                lock (_mappingsLock)
-                {
-                    _appMonitorMappings.Remove(processName);
-                }
-            }
-        }
-
-        /// <summary>
         /// Clears all cached application-to-monitor mappings.
-        /// Useful for resetting the learning system or when monitor configuration changes.
+        /// Called when monitor configuration changes to invalidate stale references.
         /// </summary>
         public void ClearAllMappings()
         {
             lock (_mappingsLock)
             {
                 _appMonitorMappings.Clear();
-            }
-        }
-
-        /// <summary>
-        /// Gets a copy of all current application-to-monitor mappings.
-        /// Useful for debugging or persisting routing preferences.
-        /// </summary>
-        /// <returns>Dictionary copy of all current mappings</returns>
-        public Dictionary<string, MonitorInfo> GetAllMappings()
-        {
-            lock (_mappingsLock)
-            {
-                return new Dictionary<string, MonitorInfo>(_appMonitorMappings);
             }
         }
 
