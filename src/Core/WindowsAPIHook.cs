@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Text;
 using WindowsNotificationManager.src.Utils;
 
@@ -32,6 +33,11 @@ namespace WindowsNotificationManager.src.Core
 
         // Performance optimization: Process name caching system
         /// <summary>
+        /// Lock object for thread-safe access to process cache dictionaries
+        /// </summary>
+        private readonly object _cacheLock = new();
+
+        /// <summary>
         /// Cache of process IDs to process names to avoid expensive Process.GetProcessById calls
         /// </summary>
         private readonly Dictionary<uint, string> _processCache = new();
@@ -53,29 +59,29 @@ namespace WindowsNotificationManager.src.Core
 
         // Performance monitoring and statistics
         /// <summary>
-        /// Total number of Windows events received by the hook
+        /// Total number of Windows events received by the hook (thread-safe via Interlocked)
         /// </summary>
-        private int _totalEvents = 0;
+        private long _totalEvents = 0;
 
         /// <summary>
-        /// Number of events filtered out for performance (not notification-related)
+        /// Number of events filtered out for performance (thread-safe via Interlocked)
         /// </summary>
-        private int _filteredEvents = 0;
+        private long _filteredEvents = 0;
 
         /// <summary>
-        /// Number of events that were actually processed as notifications
+        /// Number of events that were actually processed as notifications (thread-safe via Interlocked)
         /// </summary>
-        private int _processedEvents = 0;
+        private long _processedEvents = 0;
 
         /// <summary>
-        /// Number of process cache hits (performance metric)
+        /// Number of process cache hits (thread-safe via Interlocked)
         /// </summary>
-        private int _cacheHits = 0;
+        private long _cacheHits = 0;
 
         /// <summary>
-        /// Number of process cache misses (performance metric)
+        /// Number of process cache misses (thread-safe via Interlocked)
         /// </summary>
-        private int _cacheMisses = 0;
+        private long _cacheMisses = 0;
 
         /// <summary>
         /// Last time performance statistics were reported
@@ -272,20 +278,20 @@ namespace WindowsNotificationManager.src.Core
             try
             {
                 // Performance monitoring: track all events received
-                _totalEvents++;
+                Interlocked.Increment(ref _totalEvents);
 
                 // CRITICAL PERFORMANCE OPTIMIZATION: Early filtering
                 // Filter out 90%+ of irrelevant events to reduce CPU usage
                 if (idObject != 0 || hwnd == IntPtr.Zero)
                 {
-                    _filteredEvents++;
+                    Interlocked.Increment(ref _filteredEvents);
                     return;
                 }
 
                 // Only process events relevant to notification windows
                 if (eventType != EVENT_OBJECT_CREATE && eventType != EVENT_OBJECT_SHOW && eventType != EVENT_OBJECT_LOCATIONCHANGE)
                 {
-                    _filteredEvents++;
+                    Interlocked.Increment(ref _filteredEvents);
                     return;
                 }
 
@@ -300,7 +306,7 @@ namespace WindowsNotificationManager.src.Core
                 // Check if this window is a Windows notification that we should handle
                 if (IsTargetNotificationWindow(hwnd))
                 {
-                    _processedEvents++;
+                    Interlocked.Increment(ref _processedEvents);
                     DebugLogger.WriteLine($"DETECTED NOTIFICATION WINDOW: {hwnd:X8} - Event: {eventType}");
 
                     // Get the current window rectangle to determine size and position
@@ -360,26 +366,32 @@ namespace WindowsNotificationManager.src.Core
             }
 
             // Check for valid cached entry first (performance optimization)
-            if (_processCache.TryGetValue(processId, out var cachedName))
+            lock (_cacheLock)
             {
-                if (_processCacheTime.TryGetValue(processId, out var cacheTime) &&
-                    now - cacheTime < _processCacheTimeout)
+                if (_processCache.TryGetValue(processId, out var cachedName))
                 {
-                    _cacheHits++;
-                    return cachedName; // Return cached value for 80%+ performance gain
+                    if (_processCacheTime.TryGetValue(processId, out var cacheTime) &&
+                        now - cacheTime < _processCacheTimeout)
+                    {
+                        Interlocked.Increment(ref _cacheHits);
+                        return cachedName; // Return cached value for 80%+ performance gain
+                    }
                 }
             }
 
             // Cache miss or expired entry: fetch from system
+            Interlocked.Increment(ref _cacheMisses);
             try
             {
-                _cacheMisses++;
                 var process = Process.GetProcessById((int)processId);
                 var processName = process.ProcessName;
 
                 // Store in cache for future lookups
-                _processCache[processId] = processName;
-                _processCacheTime[processId] = now;
+                lock (_cacheLock)
+                {
+                    _processCache[processId] = processName;
+                    _processCacheTime[processId] = now;
+                }
 
                 return processName;
             }
@@ -388,8 +400,11 @@ namespace WindowsNotificationManager.src.Core
                 // Process might have ended while we were looking it up
                 // Cache "Unknown" briefly to avoid repeated failed lookups
                 var unknownName = "Unknown";
-                _processCache[processId] = unknownName;
-                _processCacheTime[processId] = now;
+                lock (_cacheLock)
+                {
+                    _processCache[processId] = unknownName;
+                    _processCacheTime[processId] = now;
+                }
                 return unknownName;
             }
         }
@@ -403,20 +418,23 @@ namespace WindowsNotificationManager.src.Core
             var now = DateTime.Now;
             var expiredKeys = new List<uint>();
 
-            // Find entries that have exceeded the cache timeout (5 minutes)
-            foreach (var kvp in _processCacheTime)
+            lock (_cacheLock)
             {
-                if (now - kvp.Value > _processCacheTimeout)
+                // Find entries that have exceeded the cache timeout (5 minutes)
+                foreach (var kvp in _processCacheTime)
                 {
-                    expiredKeys.Add(kvp.Key);
+                    if (now - kvp.Value > _processCacheTimeout)
+                    {
+                        expiredKeys.Add(kvp.Key);
+                    }
                 }
-            }
 
-            // Remove both the cached name and timestamp for expired entries
-            foreach (var key in expiredKeys)
-            {
-                _processCache.Remove(key);
-                _processCacheTime.Remove(key);
+                // Remove both the cached name and timestamp for expired entries
+                foreach (var key in expiredKeys)
+                {
+                    _processCache.Remove(key);
+                    _processCacheTime.Remove(key);
+                }
             }
 
             DebugLogger.WriteLine($"Process cache cleanup: removed {expiredKeys.Count} expired entries, cache size: {_processCache.Count}");
@@ -429,14 +447,26 @@ namespace WindowsNotificationManager.src.Core
         /// </summary>
         private void LogPerformanceStats()
         {
+            // Take atomic snapshots of all counters for consistent reporting
+            var totalEvents = Interlocked.Read(ref _totalEvents);
+            var filteredEvents = Interlocked.Read(ref _filteredEvents);
+            var processedEvents = Interlocked.Read(ref _processedEvents);
+            var cacheHits = Interlocked.Read(ref _cacheHits);
+            var cacheMisses = Interlocked.Read(ref _cacheMisses);
+            int cacheSize;
+            lock (_cacheLock)
+            {
+                cacheSize = _processCache.Count;
+            }
+
             // Calculate performance metrics
-            var filterEfficiency = _totalEvents > 0 ? (double)_filteredEvents / _totalEvents * 100 : 0;
-            var cacheHitRate = (_cacheHits + _cacheMisses) > 0 ? (double)_cacheHits / (_cacheHits + _cacheMisses) * 100 : 0;
+            var filterEfficiency = totalEvents > 0 ? (double)filteredEvents / totalEvents * 100 : 0;
+            var cacheHitRate = (cacheHits + cacheMisses) > 0 ? (double)cacheHits / (cacheHits + cacheMisses) * 100 : 0;
 
             DebugLogger.WriteLine($"=== PERFORMANCE STATISTICS (1min window) ===");
-            DebugLogger.WriteLine($"Hook Events - Total: {_totalEvents}, Filtered: {_filteredEvents}, Processed: {_processedEvents}");
+            DebugLogger.WriteLine($"Hook Events - Total: {totalEvents}, Filtered: {filteredEvents}, Processed: {processedEvents}");
             DebugLogger.WriteLine($"Filter Efficiency: {filterEfficiency:F1}% (higher is better, target: 92%+)");
-            DebugLogger.WriteLine($"Process Cache - Hits: {_cacheHits}, Misses: {_cacheMisses}, Size: {_processCache.Count}");
+            DebugLogger.WriteLine($"Process Cache - Hits: {cacheHits}, Misses: {cacheMisses}, Size: {cacheSize}");
             DebugLogger.WriteLine($"Cache Hit Rate: {cacheHitRate:F1}% (higher is better, target: 92%+)");
 
             // Include registry cache statistics from DebugLogger
@@ -656,8 +686,11 @@ namespace WindowsNotificationManager.src.Core
             StopHooking();
 
             // Clear all cached data to free memory
-            _processCache.Clear();
-            _processCacheTime.Clear();
+            lock (_cacheLock)
+            {
+                _processCache.Clear();
+                _processCacheTime.Clear();
+            }
         }
     }
 }
