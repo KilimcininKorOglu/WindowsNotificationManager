@@ -227,16 +227,27 @@ namespace WindowsNotificationManager.src.Core
         public MonitorInfo GetProcessMonitor(string processName)
         {
             var processes = Process.GetProcessesByName(processName);
-            foreach (var process in processes)
+            try
             {
-                // Look for processes with visible main windows
-                if (process.MainWindowHandle != IntPtr.Zero)
+                foreach (var process in processes)
                 {
-                    return GetWindowMonitor(process.MainWindowHandle);
+                    // Look for processes with visible main windows
+                    if (process.MainWindowHandle != IntPtr.Zero)
+                    {
+                        return GetWindowMonitor(process.MainWindowHandle);
+                    }
+                }
+                // No visible windows found for this process name
+                return _monitorManager.GetPrimaryMonitor();
+            }
+            finally
+            {
+                // Dispose all Process objects to release native handles
+                foreach (var process in processes)
+                {
+                    process.Dispose();
                 }
             }
-            // No visible windows found for this process name
-            return _monitorManager.GetPrimaryMonitor();
         }
 
         /// <summary>
@@ -309,8 +320,10 @@ namespace WindowsNotificationManager.src.Core
                 string processName = "";
                 try
                 {
-                    var process = Process.GetProcessById((int)processId);
-                    processName = process.ProcessName;
+                    using (var process = Process.GetProcessById((int)processId))
+                    {
+                        processName = process.ProcessName;
+                    }
                 }
                 catch
                 {
