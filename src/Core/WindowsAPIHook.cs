@@ -601,11 +601,11 @@ namespace WindowsNotificationManager.src.Core
                     }
                 }
 
-                // Fallback strategy: maintain current position if target cannot be determined
+                // Fallback strategy: skip repositioning if target cannot be determined
                 newX = currentX;
                 newY = currentY;
-                DebugLogger.WriteLine($"Using fallback: keeping current position ({currentX},{currentY})");
-                return true;
+                DebugLogger.WriteLine($"Using fallback: no valid target, skipping repositioning ({currentX},{currentY})");
+                return false;
             }
             catch (Exception ex)
             {
