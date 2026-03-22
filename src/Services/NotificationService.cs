@@ -322,8 +322,10 @@ namespace WindowsNotificationManager.src.Services
             _windowTracker.WindowMoved -= _notificationRouter.HandleWindowMoved;
             _notificationRouter.NotificationRouted -= OnNotificationRouted;
 
-            // Dispose window tracker to clean up its timer
+            // Dispose all components to release system resources
             _windowTracker?.Dispose();
+            _apiHook?.Dispose();
+            _monitorManager?.StopMonitoring();
         }
     }
 
