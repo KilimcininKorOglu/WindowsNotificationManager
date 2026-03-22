@@ -93,7 +93,7 @@
                                         <GridViewColumn x:Name="PrimaryMonitorHeader" Width="70">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding IsPrimary}"/>
+                                                    <TextBlock Text="{Binding IsPrimary, Converter={StaticResource BooleanToYesNoConverter}}"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
