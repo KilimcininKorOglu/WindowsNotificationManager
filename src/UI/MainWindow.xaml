@@ -186,8 +186,6 @@
 
     <!-- Window Resources: Data converters and value transformers -->
     <Window.Resources>
-        <!-- Standard WPF converter for boolean to visibility transformation -->
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <!-- Custom converter for boolean to localized Yes/No text transformation -->
         <local:BooleanToYesNoConverter x:Key="BooleanToYesNoConverter"/>
     </Window.Resources>
