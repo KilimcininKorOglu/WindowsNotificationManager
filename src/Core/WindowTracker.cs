@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using WindowsNotificationManager.src.Utils;
 
 namespace WindowsNotificationManager.src.Core

@@ -3,7 +3,6 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-using WindowsNotificationManager.src.Services;
 using WindowsNotificationManager.src.Utils;
 
 namespace WindowsNotificationManager.src.UI
