@@ -60,9 +60,9 @@ namespace WindowsNotificationManager
         /// <param name="e">Exit event arguments containing application exit code</param>
         protected override void OnExit(ExitEventArgs e)
         {
-            // STEP 1: Stop notification service and release Windows API hooks
-            // This is critical to prevent system hooks from remaining active after application exit
-            _notificationService?.Stop();
+            // STEP 1: Dispose notification service (stops hooks, unsubscribes events, releases resources)
+            // Dispose() calls Stop() internally plus additional cleanup
+            _notificationService?.Dispose();
 
             // STEP 2: Dispose system tray icon and release Windows Forms resources
             // Prevents tray icon from remaining visible after application termination
