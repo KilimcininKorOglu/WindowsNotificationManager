@@ -199,7 +199,7 @@ namespace WindowsNotificationManager.src.UI
         {
             // Display localized about dialog with application information
             MessageBox.Show(
-                LocalizationHelper.GetString("AboutMessage"),
+                LocalizationHelper.GetString("AboutMessage", LocalizationHelper.VersionString),
                 LocalizationHelper.GetString("About"),
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information

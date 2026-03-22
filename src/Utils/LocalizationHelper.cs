@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 
 namespace WindowsNotificationManager.src.Utils
 {
@@ -28,7 +29,7 @@ namespace WindowsNotificationManager.src.Utils
                 ["Settings"] = "Ayarlar",
                 ["About"] = "Hakkında",
                 ["Exit"] = "Çıkış",
-                ["AboutMessage"] = "KorOglan'ın Windows Bildirim Yöneticisi v1.0\n\nBu uygulama bildirimleri çoklu monitör kurulumunda uygulamaların bulunduğu monitörlerde gösterir.\n\nGeliştirici: KorOglan\n\nX (Twitter): https://x.com/KorOglan\nGitHub: https://github.com/KilimcininKorOglu",
+                ["AboutMessage"] = "KorOglan'ın Windows Bildirim Yöneticisi {0}\n\nBu uygulama bildirimleri çoklu monitör kurulumunda uygulamaların bulunduğu monitörlerde gösterir.\n\nGeliştirici: KorOglan\n\nX (Twitter): https://x.com/KorOglan\nGitHub: https://github.com/KilimcininKorOglu",
                 ["AppRunning"] = "Çalışıyor",
                 ["MonitorsDetected"] = "{0} monitör tespit edildi",
                 ["WindowsTracked"] = "{0} pencere izleniyor",
@@ -72,7 +73,7 @@ namespace WindowsNotificationManager.src.Utils
                 ["Settings"] = "Settings",
                 ["About"] = "About",
                 ["Exit"] = "Exit",
-                ["AboutMessage"] = "KorOglan's Windows Notification Manager v1.0\n\nThis application displays notifications on the monitor where applications are located in multi-monitor setups.\n\nDeveloper: KorOglan\n\nX (Twitter): https://x.com/KorOglan\nGitHub: https://github.com/KilimcininKorOglu",
+                ["AboutMessage"] = "KorOglan's Windows Notification Manager {0}\n\nThis application displays notifications on the monitor where applications are located in multi-monitor setups.\n\nDeveloper: KorOglan\n\nX (Twitter): https://x.com/KorOglan\nGitHub: https://github.com/KilimcininKorOglu",
                 ["AppRunning"] = "Running",
                 ["MonitorsDetected"] = "{0} monitors detected",
                 ["WindowsTracked"] = "{0} windows tracked",
@@ -145,6 +146,18 @@ namespace WindowsNotificationManager.src.Utils
             {
                 // All other languages default to English for international compatibility
                 _currentLanguage = "en-US";
+            }
+        }
+
+        /// <summary>
+        /// Gets the application version string from the executing assembly in "vX.Y.Z" format.
+        /// </summary>
+        public static string VersionString
+        {
+            get
+            {
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
+                return $"v{version.Major}.{version.Minor}.{version.Build}";
             }
         }
 
