@@ -14,23 +14,6 @@ namespace WindowsNotificationManager.src.Services
     public class NotificationService
     {
         /// <summary>
-        /// Static mapping of application display names to process names for routing logic
-        /// </summary>
-        private static readonly Dictionary<string, string> ProcessNameMapping = new(StringComparer.OrdinalIgnoreCase)
-        {
-            { "WhatsApp", "WhatsApp" },
-            { "Discord", "Discord" },
-            { "Telegram", "Telegram" },
-            { "Microsoft Teams", "Teams" },
-            { "Slack", "slack" },
-            { "Chrome", "chrome" },
-            { "Firefox", "firefox" },
-            { "Spotify", "Spotify" },
-            { "Visual Studio Code", "Code" },
-            { "Microsoft Outlook", "OUTLOOK" }
-        };
-
-        /// <summary>
         /// Manages multiple monitor detection and configuration changes
         /// </summary>
         private readonly MonitorManager _monitorManager;
@@ -54,11 +37,6 @@ namespace WindowsNotificationManager.src.Services
         /// Flag indicating whether the notification service is currently active
         /// </summary>
         private bool _isRunning;
-
-        /// <summary>
-        /// Event fired when a notification is received and begins processing
-        /// </summary>
-        public event EventHandler<NotificationReceivedEventArgs> NotificationReceived;
 
         /// <summary>
         /// Initializes the NotificationService and sets up all core components with proper dependencies.
@@ -140,105 +118,6 @@ namespace WindowsNotificationManager.src.Services
         }
 
         /// <summary>
-        /// Processes a notification by creating a NotificationData object and routing it to the appropriate monitor.
-        /// This is the main entry point for programmatic notification processing.
-        /// </summary>
-        /// <param name="title">Notification title/subject</param>
-        /// <param name="message">Notification body content</param>
-        /// <param name="appName">Display name of the application (optional)</param>
-        /// <param name="processName">Process name for routing logic (optional, will be derived from appName if not provided)</param>
-        /// <returns>True if notification was successfully routed, false otherwise</returns>
-        public async Task<bool> ProcessNotificationAsync(string title, string message, string appName = null, string processName = null)
-        {
-            try
-            {
-                // Create notification data object with provided information
-                var notification = new NotificationData
-                {
-                    Title = title,
-                    Message = message,
-                    AppName = appName ?? "Unknown App",
-                    ProcessName = processName ?? ExtractProcessNameFromAppName(appName),
-                    Timestamp = DateTime.Now
-                };
-
-                // Notify subscribers that a notification was received
-                OnNotificationReceived(notification);
-
-                // Route the notification to the appropriate monitor
-                return await _notificationRouter.RouteNotificationAsync(notification);
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.WriteLine($"Process notification error: {ex.Message}");
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Processes a pre-constructed NotificationData object.
-        /// Useful when notification data is already available in the correct format.
-        /// </summary>
-        /// <param name="notification">Complete notification data object</param>
-        /// <returns>True if notification was successfully routed, false otherwise</returns>
-        public async Task<bool> ProcessNotificationAsync(NotificationData notification)
-        {
-            try
-            {
-                // Notify subscribers that a notification was received
-                OnNotificationReceived(notification);
-
-                // Route the notification using the existing data
-                return await _notificationRouter.RouteNotificationAsync(notification);
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.WriteLine($"ProcessNotificationAsync error: {ex.Message}");
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Converts application display names to process names for routing logic.
-        /// Uses a built-in mapping table for common applications with fallback normalization.
-        /// This mapping is critical for correct notification routing when only app names are available.
-        /// </summary>
-        /// <param name="appName">Application display name from notification</param>
-        /// <returns>Process name suitable for routing logic</returns>
-        private string ExtractProcessNameFromAppName(string appName)
-        {
-            if (string.IsNullOrEmpty(appName))
-                return "unknown";
-
-            // Return mapped process name if found, otherwise normalize the app name
-            return ProcessNameMapping.TryGetValue(appName, out var processName)
-                ? processName
-                : appName.Replace(" ", "").ToLower(); // Remove spaces and lowercase for consistency
-        }
-
-        /// <summary>
-        /// Gets the cached monitor preference for a specific application process.
-        /// Returns the monitor where notifications for this app should be displayed.
-        /// </summary>
-        /// <param name="processName">Process name to look up</param>
-        /// <returns>MonitorInfo if a preference exists, null otherwise</returns>
-        public MonitorInfo GetAppMonitor(string processName)
-        {
-            return _notificationRouter.GetAppMonitorMapping(processName);
-        }
-
-        /// <summary>
-        /// Sets the monitor preference for a specific application process.
-        /// Used to manually override or set routing preferences for applications.
-        /// </summary>
-        /// <param name="processName">Process name to set preference for</param>
-        /// <param name="monitor">Monitor where notifications should be displayed</param>
-        public void SetAppMonitor(string processName, MonitorInfo monitor)
-        {
-            _notificationRouter.UpdateAppMonitorMapping(processName, monitor);
-        }
-
-        /// <summary>
         /// Gets a list of all available monitors in the system.
         /// Useful for UI components that need to display monitor options.
         /// </summary>
@@ -256,16 +135,6 @@ namespace WindowsNotificationManager.src.Services
         public System.Collections.Generic.List<WindowInfo> GetActiveWindows()
         {
             return _windowTracker.GetAllTrackedWindows();
-        }
-
-        /// <summary>
-        /// Raises the NotificationReceived event to notify subscribers when a notification begins processing.
-        /// Used for logging, monitoring, and UI updates.
-        /// </summary>
-        /// <param name="notification">Notification that was received</param>
-        private void OnNotificationReceived(NotificationData notification)
-        {
-            NotificationReceived?.Invoke(this, new NotificationReceivedEventArgs(notification));
         }
 
         /// <summary>
@@ -297,28 +166,6 @@ namespace WindowsNotificationManager.src.Services
             _windowTracker?.Dispose();
             _apiHook?.Dispose();
             _monitorManager?.StopMonitoring();
-        }
-    }
-
-    /// <summary>
-    /// Event arguments for notification received events.
-    /// Contains the notification data that was received and is being processed.
-    /// Used by UI components to display notification activity and logging systems.
-    /// </summary>
-    public class NotificationReceivedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The notification that was received and is being processed
-        /// </summary>
-        public NotificationData Notification { get; }
-
-        /// <summary>
-        /// Initializes event arguments with the received notification data
-        /// </summary>
-        /// <param name="notification">Notification that was received</param>
-        public NotificationReceivedEventArgs(NotificationData notification)
-        {
-            Notification = notification;
         }
     }
 }
