@@ -200,9 +200,12 @@ namespace WindowsNotificationManager.src.Core
                 if (IsIconic(windowHandle) || rect.Left < -30000 || rect.Top < -30000)
                 {
                     // Retrieve cached position from before the window was minimized
-                    if (_lastKnownPositions.TryGetValue(windowHandle, out var lastRect))
+                    lock (_lockObject)
                     {
-                        return _monitorManager.GetMonitorContainingWindow(lastRect);
+                        if (_lastKnownPositions.TryGetValue(windowHandle, out var lastRect))
+                        {
+                            return _monitorManager.GetMonitorContainingWindow(lastRect);
+                        }
                     }
                     // No cached position available, use primary monitor as safe fallback
                     return _monitorManager.GetPrimaryMonitor();
@@ -210,7 +213,10 @@ namespace WindowsNotificationManager.src.Core
                 else
                 {
                     // Window is visible: cache its current position for future minimized state tracking
-                    _lastKnownPositions[windowHandle] = rect;
+                    lock (_lockObject)
+                    {
+                        _lastKnownPositions[windowHandle] = rect;
+                    }
                     return _monitorManager.GetMonitorContainingWindow(rect);
                 }
             }
