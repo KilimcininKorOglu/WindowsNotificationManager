@@ -91,7 +91,7 @@ namespace WindowsNotificationManager.src.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"NotificationService start error: {ex.Message}");
+                DebugLogger.WriteLine($"NotificationService start error: {ex.Message}");
                 throw;
             }
         }
@@ -124,7 +124,7 @@ namespace WindowsNotificationManager.src.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"NotificationService stop error: {ex.Message}");
+                DebugLogger.WriteLine($"NotificationService stop error: {ex.Message}");
             }
         }
 
@@ -183,7 +183,7 @@ namespace WindowsNotificationManager.src.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Process notification error: {ex.Message}");
+                DebugLogger.WriteLine($"Process notification error: {ex.Message}");
                 return false;
             }
         }
@@ -206,7 +206,7 @@ namespace WindowsNotificationManager.src.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"ProcessNotificationAsync error: {ex.Message}");
+                DebugLogger.WriteLine($"ProcessNotificationAsync error: {ex.Message}");
                 return false;
             }
         }
@@ -305,7 +305,7 @@ namespace WindowsNotificationManager.src.Services
         /// <param name="e">Event arguments containing routing information</param>
         private void OnNotificationRouted(object sender, NotificationRoutedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"Notification routed: {e.Notification.Title} -> Monitor {e.Notification.TargetMonitor?.Index}");
+            DebugLogger.WriteLine($"Notification routed: {e.Notification.Title} -> Monitor {e.Notification.TargetMonitor?.Index}");
         }
 
         /// <summary>

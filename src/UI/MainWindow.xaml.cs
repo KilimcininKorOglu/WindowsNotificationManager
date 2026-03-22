@@ -245,7 +245,7 @@ namespace WindowsNotificationManager.src.UI
             catch (Exception ex)
             {
                 // Log error silently to prevent UI update interruption
-                System.Diagnostics.Debug.WriteLine($"Windows list update error: {ex.Message}");
+                DebugLogger.WriteLine($"Windows list update error: {ex.Message}");
             }
         }
 
@@ -306,7 +306,7 @@ namespace WindowsNotificationManager.src.UI
             catch (Exception ex)
             {
                 // Log registry access error and use default values
-                System.Diagnostics.Debug.WriteLine($"Registry load error: {ex.Message}");
+                DebugLogger.WriteLine($"Registry load error: {ex.Message}");
                 SetDefaultValues();
             }
         }
@@ -396,7 +396,7 @@ namespace WindowsNotificationManager.src.UI
             catch (Exception ex)
             {
                 // Log startup registry errors silently to avoid disrupting user workflow
-                System.Diagnostics.Debug.WriteLine($"Startup registry error: {ex.Message}");
+                DebugLogger.WriteLine($"Startup registry error: {ex.Message}");
             }
         }
 

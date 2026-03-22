@@ -290,7 +290,7 @@ namespace WindowsNotificationManager.src.Core
             catch (Exception ex)
             {
                 // Catch and log any exceptions to prevent timer crashes
-                Debug.WriteLine($"WindowTracker error: {ex.Message}");
+                DebugLogger.WriteLine($"WindowTracker error: {ex.Message}");
             }
         }
 
