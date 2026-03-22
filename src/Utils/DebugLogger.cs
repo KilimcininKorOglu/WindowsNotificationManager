@@ -118,8 +118,8 @@ namespace WindowsNotificationManager.src.Utils
                 _registryCacheMisses++;
                 using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\KorOglansWindowsNotificationManager"))
                 {
-                    // Read EnableDebugLogging setting with default value of 1 (enabled)
-                    var value = key?.GetValue("EnableDebugLogging", 1);
+                    // Read EnableDebugLogging setting with default value of 0 (disabled)
+                    var value = key?.GetValue("EnableDebugLogging", 0);
                     _debugLoggingEnabled = (int?)value == 1;
                     _lastRegistryCheck = now;
                     return _debugLoggingEnabled.Value;
