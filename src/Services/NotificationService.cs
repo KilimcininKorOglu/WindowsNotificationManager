@@ -80,9 +80,6 @@ namespace WindowsNotificationManager.src.Services
                 // Begin tracking window positions and focus changes (500ms intervals)
                 _windowTracker.StartTracking();
 
-                // Initialize system notification listeners (placeholder for future enhancement)
-                StartListeningForSystemNotifications();
-
                 // CRITICAL: Start Windows API hooking for real-time notification interception
                 // This requires administrator privileges to function
                 _apiHook.StartHooking();
@@ -114,9 +111,6 @@ namespace WindowsNotificationManager.src.Services
                 // Stop window position and focus tracking
                 _windowTracker.StopTracking();
 
-                // Stop system notification listeners
-                StopListeningForSystemNotifications();
-
                 // CRITICAL: Stop Windows API hooking to release system hooks
                 _apiHook.StopHooking();
 
@@ -126,30 +120,6 @@ namespace WindowsNotificationManager.src.Services
             {
                 DebugLogger.WriteLine($"NotificationService stop error: {ex.Message}");
             }
-        }
-
-        /// <summary>
-        /// Placeholder method for initializing system notification listeners.
-        /// Currently, all notification interception is handled by the Windows API hook.
-        /// This method could be expanded in the future to integrate with additional notification APIs.
-        /// </summary>
-        private void StartListeningForSystemNotifications()
-        {
-            // Future enhancement: Integration with Windows notification system
-            // Currently the WindowsAPIHook handles all notification interception
-            // This could be expanded to include:
-            // - Windows Runtime Toast Notification APIs
-            // - WNS (Windows Notification Service) integration
-            // - Additional notification sources
-        }
-
-        /// <summary>
-        /// Placeholder method for stopping system notification listeners.
-        /// Matches the StartListeningForSystemNotifications method for completeness.
-        /// </summary>
-        private void StopListeningForSystemNotifications()
-        {
-            // Placeholder for stopping future notification listeners
         }
 
         /// <summary>
