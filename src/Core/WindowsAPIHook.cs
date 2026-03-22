@@ -161,6 +161,11 @@ namespace WindowsNotificationManager.src.Core
         /// </summary>
         private const uint WINEVENT_OUTOFCONTEXT = 0x0000;
 
+        // SetWindowPos flags for controlling window repositioning behavior
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOZORDER = 0x0004;
+        private const uint SWP_NOACTIVATE = 0x0010;
+
         /// <summary>
         /// Handle to the installed Windows event hook
         /// </summary>
@@ -288,7 +293,7 @@ namespace WindowsNotificationManager.src.Core
                             // Move the notification window using SetWindowPos API
                             // Flags: SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE (preserve size, z-order, activation)
                             var success = SetWindowPos(hwnd, IntPtr.Zero, newX, newY, 0, 0,
-                                0x0001 | 0x0004 | 0x0010);
+                                SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 
                             if (success)
                             {
