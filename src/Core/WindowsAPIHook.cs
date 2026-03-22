@@ -91,12 +91,6 @@ namespace WindowsNotificationManager.src.Core
         // Windows API P/Invoke declarations for window manipulation and monitoring
 
         /// <summary>
-        /// Delegate for SetWindowPos function pointer (used for potential API hooking)
-        /// </summary>
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate bool SetWindowPosDelegate(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-
-        /// <summary>
         /// Moves and resizes a window. Used to reposition notification windows to target monitors.
         /// </summary>
         [DllImport("user32.dll", SetLastError = true)]
@@ -125,18 +119,6 @@ namespace WindowsNotificationManager.src.Core
         /// </summary>
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
-
-        /// <summary>
-        /// Gets handle to the current process
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetCurrentProcess();
-
-        /// <summary>
-        /// Gets the current process ID
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        private static extern uint GetCurrentProcessId();
 
         // Windows Event Hook system for capturing window creation and movement events
 
