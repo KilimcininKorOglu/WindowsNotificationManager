@@ -318,6 +318,10 @@ namespace WindowsNotificationManager.src.Services
             // Stop all monitoring services
             Stop();
 
+            // Unsubscribe event handlers to break circular references
+            _windowTracker.WindowMoved -= _notificationRouter.HandleWindowMoved;
+            _notificationRouter.NotificationRouted -= OnNotificationRouted;
+
             // Dispose window tracker to clean up its timer
             _windowTracker?.Dispose();
         }
