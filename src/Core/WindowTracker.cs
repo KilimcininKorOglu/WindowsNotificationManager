@@ -154,20 +154,6 @@ namespace WindowsNotificationManager.src.Core
         }
 
         /// <summary>
-        /// Retrieves cached window information for a specific process ID.
-        /// Thread-safe method that returns the most recently tracked window for the given process.
-        /// </summary>
-        /// <param name="processId">Windows process ID to look up</param>
-        /// <returns>WindowInfo if the process is being tracked, null otherwise</returns>
-        public WindowInfo GetWindowByProcessId(uint processId)
-        {
-            lock (_lockObject)
-            {
-                return _trackedWindows.TryGetValue(processId, out var windowInfo) ? windowInfo : null;
-            }
-        }
-
-        /// <summary>
         /// Gets a snapshot of all currently tracked windows.
         /// Thread-safe method that returns a copy of the tracked windows collection.
         /// </summary>
