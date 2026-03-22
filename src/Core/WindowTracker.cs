@@ -431,6 +431,8 @@ namespace WindowsNotificationManager.src.Core
                     {
                         // Window no longer exists (closed), remove from tracking
                         _trackedWindows.Remove(processId);
+                        // Also clean up cached position to prevent memory leak
+                        _lastKnownPositions.Remove(existingWindow.Handle);
                     }
                 }
             }
