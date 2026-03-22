@@ -87,39 +87,6 @@ namespace WindowsNotificationManager.src.Core
         }
 
         /// <summary>
-        /// Gets a monitor by its assigned index number
-        /// </summary>
-        /// <param name="index">Zero-based index of the monitor</param>
-        /// <returns>MonitorInfo object for the specified index, or null if index is invalid</returns>
-        public MonitorInfo GetMonitorByIndex(int index)
-        {
-            if (index >= 0 && index < _monitors.Count)
-                return _monitors[index];
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the monitor that contains the specified window handle
-        /// </summary>
-        /// <param name="windowHandle">Handle to a window (HWND)</param>
-        /// <returns>MonitorInfo object representing the monitor containing the window</returns>
-        public MonitorInfo GetMonitorFromWindowHandle(IntPtr windowHandle)
-        {
-            return MonitorUtils.GetMonitorFromWindow(windowHandle);
-        }
-
-        /// <summary>
-        /// Gets the monitor that contains the specified screen coordinates
-        /// </summary>
-        /// <param name="x">X coordinate in screen pixels</param>
-        /// <param name="y">Y coordinate in screen pixels</param>
-        /// <returns>MonitorInfo object representing the monitor containing the point</returns>
-        public MonitorInfo GetMonitorFromPoint(int x, int y)
-        {
-            return MonitorUtils.GetMonitorFromPoint(x, y);
-        }
-
-        /// <summary>
         /// Finds the monitor that contains the largest portion of the specified window rectangle.
         /// This is useful for determining which monitor a window primarily belongs to.
         /// </summary>
@@ -135,24 +102,6 @@ namespace WindowsNotificationManager.src.Core
             }
             // If no monitor contains the window, return primary monitor as safe fallback
             return _primaryMonitor;
-        }
-
-        /// <summary>
-        /// Gets the total number of detected monitors in the system
-        /// </summary>
-        /// <returns>Number of monitors, or 0 if no monitors detected</returns>
-        public int GetMonitorCount()
-        {
-            return _monitors?.Count ?? 0;
-        }
-
-        /// <summary>
-        /// Determines if the system has multiple monitors connected
-        /// </summary>
-        /// <returns>True if more than one monitor is detected, false otherwise</returns>
-        public bool IsMultiMonitorSetup()
-        {
-            return GetMonitorCount() > 1;
         }
 
         /// <summary>
@@ -197,19 +146,6 @@ namespace WindowsNotificationManager.src.Core
             MonitorConfigurationChanged?.Invoke(this, new MonitorConfigurationChangedEventArgs(_monitors));
         }
 
-        /// <summary>
-        /// Generates a user-friendly display name for a monitor including its resolution.
-        /// Uses LocalizationHelper for proper multi-language support.
-        /// </summary>
-        /// <param name="monitor">MonitorInfo object to generate display name for</param>
-        /// <returns>Formatted string with localized monitor name and resolution</returns>
-        public string GetMonitorDisplayName(MonitorInfo monitor)
-        {
-            if (monitor.IsPrimary)
-                return $"{LocalizationHelper.GetString("PrimaryMonitor")} ({monitor.Bounds.Width}x{monitor.Bounds.Height})";
-            else
-                return $"{LocalizationHelper.GetString("Monitor")} {monitor.Index + 1} ({monitor.Bounds.Width}x{monitor.Bounds.Height})";
-        }
     }
 
     /// <summary>
