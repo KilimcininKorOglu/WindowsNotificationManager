@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using Microsoft.Win32;
 
 namespace WindowsNotificationManager.src.Utils
@@ -42,12 +43,12 @@ namespace WindowsNotificationManager.src.Utils
         /// <summary>
         /// Number of times cached registry value was used (performance metric)
         /// </summary>
-        private static int _registryCacheHits = 0;
+        private static long _registryCacheHits = 0;
 
         /// <summary>
         /// Number of times registry had to be read from system (performance metric)
         /// </summary>
-        private static int _registryCacheMisses = 0;
+        private static long _registryCacheMisses = 0;
 
         /// <summary>
         /// Static constructor that initializes the log file path based on executable location.
@@ -104,36 +105,39 @@ namespace WindowsNotificationManager.src.Utils
         /// <returns>True if debug logging is enabled, false otherwise</returns>
         private static bool IsDebugLoggingEnabled()
         {
-            var now = DateTime.Now;
-
-            // PERFORMANCE OPTIMIZATION: Use cached value if within timeout period
-            if (_debugLoggingEnabled.HasValue && (now - _lastRegistryCheck) < _cacheTimeout)
+            lock (_lockObject)
             {
-                _registryCacheHits++;
-                return _debugLoggingEnabled.Value;
-            }
+                var now = DateTime.Now;
 
-            // Cache miss or timeout: read from registry and update cache
-            try
-            {
-                _registryCacheMisses++;
-                using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\KorOglansWindowsNotificationManager"))
+                // PERFORMANCE OPTIMIZATION: Use cached value if within timeout period
+                if (_debugLoggingEnabled.HasValue && (now - _lastRegistryCheck) < _cacheTimeout)
                 {
-                    // Read EnableDebugLogging setting with default value of 0 (disabled)
-                    var value = key?.GetValue("EnableDebugLogging", 0);
-                    _debugLoggingEnabled = (int?)value == 1;
-                    _lastRegistryCheck = now;
+                    Interlocked.Increment(ref _registryCacheHits);
                     return _debugLoggingEnabled.Value;
                 }
-            }
-            catch
-            {
-                // Registry access failed: default to enabled and cache the result
-                // This ensures logging works even if registry is inaccessible
-                _registryCacheMisses++;
-                _debugLoggingEnabled = true;
-                _lastRegistryCheck = now;
-                return true;
+
+                // Cache miss or timeout: read from registry and update cache
+                try
+                {
+                    Interlocked.Increment(ref _registryCacheMisses);
+                    using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\KorOglansWindowsNotificationManager"))
+                    {
+                        // Read EnableDebugLogging setting with default value of 0 (disabled)
+                        var value = key?.GetValue("EnableDebugLogging", 0);
+                        _debugLoggingEnabled = (int?)value == 1;
+                        _lastRegistryCheck = now;
+                        return _debugLoggingEnabled.Value;
+                    }
+                }
+                catch
+                {
+                    // Registry access failed: default to enabled and cache the result
+                    // This ensures logging works even if registry is inaccessible
+                    Interlocked.Increment(ref _registryCacheMisses);
+                    _debugLoggingEnabled = true;
+                    _lastRegistryCheck = now;
+                    return true;
+                }
             }
         }
 
@@ -177,9 +181,12 @@ namespace WindowsNotificationManager.src.Utils
         /// </summary>
         public static void InvalidateCache()
         {
-            // Clear cached value and timestamp to force registry re-read
-            _debugLoggingEnabled = null;
-            _lastRegistryCheck = DateTime.MinValue;
+            lock (_lockObject)
+            {
+                // Clear cached value and timestamp to force registry re-read
+                _debugLoggingEnabled = null;
+                _lastRegistryCheck = DateTime.MinValue;
+            }
         }
 
         /// <summary>
@@ -189,11 +196,13 @@ namespace WindowsNotificationManager.src.Utils
         /// </summary>
         public static void LogRegistryCacheStats()
         {
-            var totalRequests = _registryCacheHits + _registryCacheMisses;
-            var hitRate = totalRequests > 0 ? (double)_registryCacheHits / totalRequests * 100 : 0;
+            var hits = Interlocked.Read(ref _registryCacheHits);
+            var misses = Interlocked.Read(ref _registryCacheMisses);
+            var totalRequests = hits + misses;
+            var hitRate = totalRequests > 0 ? (double)hits / totalRequests * 100 : 0;
 
             // Log cache performance metrics for monitoring and optimization
-            WriteLine($"Registry Cache Stats - Hits: {_registryCacheHits}, Misses: {_registryCacheMisses}, Hit Rate: {hitRate:F1}% (target: 97%+)");
+            WriteLine($"Registry Cache Stats - Hits: {hits}, Misses: {misses}, Hit Rate: {hitRate:F1}% (target: 97%+)");
         }
     }
 }
