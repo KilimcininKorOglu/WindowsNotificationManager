@@ -56,7 +56,8 @@ namespace WindowsNotificationManager.src.Utils
         static DebugLogger()
         {
             // Determine log file location: same directory as the executable
-            var exeDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            // Use Environment.ProcessPath for single-file publish compatibility (.NET 6+)
+            var exeDirectory = Path.GetDirectoryName(Environment.ProcessPath);
             _logFilePath = Path.Combine(exeDirectory, "notification_debug.log");
         }
 

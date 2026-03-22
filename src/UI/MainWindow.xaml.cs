@@ -385,7 +385,8 @@ namespace WindowsNotificationManager.src.UI
                     if (startWithWindows)
                     {
                         // Add application to startup with quoted executable path
-                        var exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                        // Use Environment.ProcessPath for single-file publish compatibility (.NET 6+)
+                        var exePath = Environment.ProcessPath;
                         key?.SetValue(appName, $"\"{exePath}\"");
                     }
                     else
