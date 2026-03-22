@@ -91,11 +91,6 @@ namespace WindowsNotificationManager.src.Core
         public event EventHandler<WindowMovedEventArgs> WindowMoved;
 
         /// <summary>
-        /// Event fired when window focus changes (user switches between applications)
-        /// </summary>
-        public event EventHandler<WindowFocusChangedEventArgs> WindowFocusChanged;
-
-        /// <summary>
         /// Handle to the last foreground window to detect focus changes
         /// </summary>
         private IntPtr _lastForegroundWindow = IntPtr.Zero;
@@ -262,8 +257,6 @@ namespace WindowsNotificationManager.src.Core
                     var windowInfo = GetWindowInfo(foregroundWindow);
                     if (windowInfo != null)
                     {
-                        // Notify subscribers about focus change
-                        OnWindowFocusChanged(windowInfo);
                         // Add or update this window in our tracking dictionary
                         UpdateTrackedWindow(windowInfo);
                     }
@@ -437,16 +430,6 @@ namespace WindowsNotificationManager.src.Core
         }
 
         /// <summary>
-        /// Raises the WindowFocusChanged event when the foreground window changes.
-        /// Used to track user attention and update active window information.
-        /// </summary>
-        /// <param name="window">Window that gained focus</param>
-        private void OnWindowFocusChanged(WindowInfo window)
-        {
-            WindowFocusChanged?.Invoke(this, new WindowFocusChangedEventArgs(window));
-        }
-
-        /// <summary>
         /// Implements IDisposable pattern to properly clean up the tracking timer.
         /// Stops window tracking and releases system resources when the tracker is no longer needed.
         /// </summary>
@@ -492,25 +475,4 @@ namespace WindowsNotificationManager.src.Core
         }
     }
 
-    /// <summary>
-    /// Event arguments for window focus change notifications.
-    /// Contains information about the window that gained focus (became active).
-    /// Used to track user attention and update application activity state.
-    /// </summary>
-    public class WindowFocusChangedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// Window that gained focus and is now active
-        /// </summary>
-        public WindowInfo Window { get; }
-
-        /// <summary>
-        /// Initializes event arguments with focus change information
-        /// </summary>
-        /// <param name="window">Window that gained focus</param>
-        public WindowFocusChangedEventArgs(WindowInfo window)
-        {
-            Window = window;
-        }
-    }
 }
