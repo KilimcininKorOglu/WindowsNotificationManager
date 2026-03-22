@@ -27,11 +27,17 @@ namespace WindowsNotificationManager.src.Core
         public event EventHandler<MonitorConfigurationChangedEventArgs> MonitorConfigurationChanged;
 
         /// <summary>
+        /// Flag to suppress MonitorConfigurationChanged event during construction
+        /// </summary>
+        private bool _isInitialized = false;
+
+        /// <summary>
         /// Initializes a new instance of MonitorManager and discovers all connected monitors
         /// </summary>
         public MonitorManager()
         {
             RefreshMonitors();
+            _isInitialized = true;
         }
 
         /// <summary>
@@ -186,6 +192,8 @@ namespace WindowsNotificationManager.src.Core
         /// </summary>
         private void OnMonitorConfigurationChanged()
         {
+            if (!_isInitialized)
+                return;
             MonitorConfigurationChanged?.Invoke(this, new MonitorConfigurationChangedEventArgs(_monitors));
         }
 
