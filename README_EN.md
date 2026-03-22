@@ -1,4 +1,4 @@
-# KorOglan's Windows Notification Manager v1.4.0
+# KorOglan's Windows Notification Manager v1.5.0
 
 A desktop application developed to display Windows notifications on the correct monitor in multi-monitor setups.
 
