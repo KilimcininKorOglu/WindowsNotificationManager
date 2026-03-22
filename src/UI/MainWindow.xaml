@@ -134,8 +134,8 @@
                                         <GridViewColumn x:Name="MonitorHeader" Width="70">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <!-- Display monitor index in localized format -->
-                                                    <TextBlock Text="{Binding Monitor.Index, StringFormat='Monitör {0}'}"/>
+                                                    <!-- Display monitor index - format set programmatically via SetLocalizedTexts() -->
+                                                    <TextBlock Text="{Binding Monitor.Index}"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>

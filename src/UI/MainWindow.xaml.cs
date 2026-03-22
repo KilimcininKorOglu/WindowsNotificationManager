@@ -87,6 +87,13 @@ namespace WindowsNotificationManager.src.UI
             MonitorHeader.Header = LocalizationHelper.GetString("Monitor");
             RefreshWindowsBtn.Content = LocalizationHelper.GetString("RefreshWindows");
 
+            // Set localized StringFormat for monitor index column
+            var monitorLabel = LocalizationHelper.GetString("Monitor");
+            var factory = new System.Windows.FrameworkElementFactory(typeof(System.Windows.Controls.TextBlock));
+            factory.SetBinding(System.Windows.Controls.TextBlock.TextProperty,
+                new System.Windows.Data.Binding("Monitor.Index") { StringFormat = monitorLabel + " {0}" });
+            MonitorHeader.CellTemplate = new System.Windows.DataTemplate { VisualTree = factory };
+
             // Settings section localization
             SettingsGroupBox.Header = LocalizationHelper.GetString("Settings");
 
